@@ -15,14 +15,11 @@ package org.jdbi.v3.core;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.fail;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,6 +27,7 @@ import java.util.Optional;
 
 import com.google.common.collect.Maps;
 
+import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.exception.NoResultsException;
 import org.jdbi.v3.core.exception.StatementException;
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
@@ -63,9 +61,8 @@ public class TestQueries
         h.createStatement("insert into something (id, name) values (2, 'brian')").execute();
 
         List<Map<String, Object>> results = h.createQuery("select * from something order by id").list();
-        assertEquals(2, results.size());
-        Map<String, Object> first_row = results.get(0);
-        assertEquals("eric", first_row.get("name"));
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).get("name")).isEqualTo("eric");
     }
 
     @Test
@@ -77,9 +74,7 @@ public class TestQueries
         Query<Something> query = h.createQuery("select * from something order by id").mapToBean(Something.class);
 
         List<Something> r = query.list();
-        Something eric = r.get(0);
-        assertEquals("eric", eric.getName());
-        assertEquals(1, eric.getId());
+        assertThat(r.get(0)).isEqualTo(new Something(1, "eric"));
     }
 
     @Test
@@ -91,9 +86,8 @@ public class TestQueries
 
         List<Something> r = query.list();
         Something eric = r.get(0);
-        assertEquals("eric", eric.getName());
-        assertEquals(1, eric.getId());
-        assertNull(eric.getIntegerValue());
+        assertThat(eric).isEqualTo(new Something(1, "eric"));
+        assertThat(eric.getIntegerValue()).isNull();
     }
 
     @Test
@@ -105,9 +99,8 @@ public class TestQueries
 
         List<Something> r = query.list();
         Something eric = r.get(0);
-        assertEquals("eric", eric.getName());
-        assertEquals(1, eric.getId());
-        assertEquals(0, eric.getIntValue());
+        assertThat(eric).isEqualTo(new Something(1, "eric"));
+        assertThat(eric.getIntValue()).isZero();
     }
 
     @Test
@@ -119,7 +112,7 @@ public class TestQueries
         Query<String> query = h.createQuery("select name from something order by id").map((r, ctx) -> r.getString(1));
 
         String name = query.list().get(0);
-        assertEquals("eric", name);
+        assertThat(name).isEqualTo("eric");
     }
 
     @Test
@@ -129,8 +122,8 @@ public class TestQueries
         h.insert("insert into something (id, name) values (2, 'brian')");
 
         List<Map<String, Object>> r = h.select("select * from something order by id");
-        assertEquals(2, r.size());
-        assertEquals("eric", r.get(0).get("name"));
+        assertThat(r).hasSize(2);
+        assertThat(r.get(0).get("name")).isEqualTo("eric");
     }
 
     @Test
@@ -140,8 +133,8 @@ public class TestQueries
         h.insert("insert into something (id, name) values (2, 'brian')");
 
         List<Map<String, Object>> r = h.select("select * from something where id = ?", 1);
-        assertEquals(1, r.size());
-        assertEquals("eric", r.get(0).get("name"));
+        assertThat(r).hasSize(1);
+        assertThat(r.get(0).get("name")).isEqualTo("eric");
     }
 
     @Test
@@ -155,8 +148,7 @@ public class TestQueries
                              .mapToBean(Something.class)
                              .list();
 
-        assertEquals(1, r.size());
-        assertEquals("eric", r.get(0).getName());
+        assertThat(r).extracting(Something::getName).containsExactly("eric");
     }
 
     @Test
@@ -171,8 +163,7 @@ public class TestQueries
                              .mapToBean(Something.class)
                              .list();
 
-        assertEquals(1, r.size());
-        assertEquals("eric", r.get(0).getName());
+        assertThat(r).extracting(Something::getName).containsExactly("eric");
     }
 
     @Test
@@ -183,7 +174,7 @@ public class TestQueries
             fail("should have raised exception");
         }
         catch (UnableToExecuteStatementException e) {
-            assertTrue("execution goes through here", true);
+            Assertions.assertThat(e).isNotNull();
         }
         catch (Exception e) {
             fail("Raised incorrect exception");
@@ -201,7 +192,7 @@ public class TestQueries
                        .findFirst()
                        .get();
 
-        assertEquals("eric", r.getName());
+        assertThat(r.getName()).isEqualTo("eric");
     }
 
     @Test
@@ -213,13 +204,13 @@ public class TestQueries
         try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
                                        .mapToBean(Something.class)
                                        .iterator()) {
-            assertTrue(i.hasNext());
+            assertThat(i.hasNext()).isTrue();
             Something first = i.next();
-            assertEquals("eric", first.getName());
-            assertTrue(i.hasNext());
+            assertThat(first.getName()).isEqualTo("eric");
+            assertThat(i.hasNext()).isTrue();
             Something second = i.next();
-            assertEquals(2, second.getId());
-            assertFalse(i.hasNext());
+            assertThat(second.getId()).isEqualTo(2);
+            assertThat(i.hasNext()).isFalse();
         }
     }
 
@@ -232,14 +223,13 @@ public class TestQueries
         try (ResultIterator<Something> i = h.createQuery("select * from something order by id")
                                        .mapToBean(Something.class)
                                        .iterator()) {
-            assertTrue(i.hasNext());
-            assertTrue(i.hasNext());
+            assertThat(i.hasNext()).isTrue();
             Something first = i.next();
-            assertEquals("eric", first.getName());
-            assertTrue(i.hasNext());
+            assertThat(first.getName()).isEqualTo("eric");
+            assertThat(i.hasNext()).isTrue();
             Something second = i.next();
-            assertEquals(2, second.getId());
-            assertFalse(i.hasNext());
+            assertThat(second.getId()).isEqualTo(2);
+            assertThat(i.hasNext()).isFalse();
         }
     }
 
@@ -254,10 +244,10 @@ public class TestQueries
                                        .iterator()) {
 
             Something first = i.next();
-            assertEquals("eric", first.getName());
+            assertThat(first.getName()).isEqualTo("eric");
             Something second = i.next();
-            assertEquals(2, second.getId());
-            assertFalse(i.hasNext());
+            assertThat(second.getId()).isEqualTo(2);
+            assertThat(i.hasNext()).isFalse();
         }
     }
 
@@ -267,13 +257,10 @@ public class TestQueries
         h.insert("insert into something (id, name) values (1, 'eric')");
         h.insert("insert into something (id, name) values (2, 'eric')");
 
-        int count = 0;
-        for (Something s : h.createQuery("select * from something order by id").mapToBean(Something.class)) {
-            count++;
-            assertEquals("eric", s.getName());
-        }
-
-        assertEquals(2, count);
+        assertThat(h.createQuery("select * from something order by id").mapToBean(Something.class))
+                .hasSize(2)
+                .extracting(Something::getName)
+                .containsOnly("eric");
 
     }
 
@@ -288,18 +275,18 @@ public class TestQueries
 
         ResultIterator<Something> r = q.iterator();
 
-        assertTrue(r.hasNext());
+        assertThat(r.hasNext()).isTrue();
         r.next();
-        assertTrue(r.hasNext());
+        assertThat(r.hasNext()).isTrue();
         r.next();
-        assertFalse(r.hasNext());
+        assertThat(r.hasNext()).isFalse();
     }
 
     @Test
     public void testFirstWithNoResult() throws Exception
     {
         Optional<Something> s = h.createQuery("select id, name from something").mapToBean(Something.class).findFirst();
-        assertFalse(s.isPresent());
+        assertThat(s.isPresent()).isFalse();
     }
 
     @Test
@@ -307,7 +294,7 @@ public class TestQueries
     {
         h.insert("insert into something (id, name) values (?, ?)", 1, null);
         Optional<String> s = h.createQuery("select name from something where id=1").mapTo(String.class).findFirst();
-        assertFalse(s.isPresent());
+        assertThat(s.isPresent()).isFalse();
     }
 
     @Test
@@ -320,15 +307,15 @@ public class TestQueries
          .execute();
 
 
-        assertEquals(1, h.createQuery("select id, name from something")
+        assertThat(h.createQuery("select id, name from something")
                 .mapToBean(Something.class)
                 .withStream(stream -> stream.limit(1).count())
-                .longValue());
+                .longValue()).isEqualTo(1);
 
-        assertEquals(2, h.createQuery("select id, name from something")
+        assertThat(h.createQuery("select id, name from something")
                 .mapToBean(Something.class)
                 .withStream(stream -> stream.limit(2).count())
-                .longValue());
+                .longValue()).isEqualTo(2);
     }
 
     @Test
@@ -343,9 +330,7 @@ public class TestQueries
                 .<Entry<String, Integer>>map((r, ctx) -> Maps.immutableEntry(r.getString("name"), r.getInt("id")))
                 .collect(toMap(Entry::getKey, Entry::getValue));
 
-        assertEquals(2, rs.size());
-        assertEquals(Integer.valueOf(1), rs.get("Brian"));
-        assertEquals(Integer.valueOf(2), rs.get("Keith"));
+        assertThat(rs).containsOnly(entry("Brian", 1), entry("Keith", 2));
     }
 
     @Test
@@ -359,8 +344,7 @@ public class TestQueries
         List<String> rs = h.createQuery("select name from something order by id")
                 .mapTo(String.class)
                 .collect(toList());
-        assertEquals(2, rs.size());
-        assertEquals(Arrays.asList("Brian", "Keith"), rs);
+        assertThat(rs).containsExactly("Brian", "Keith");
     }
 
     @Test
@@ -375,8 +359,9 @@ public class TestQueries
              .execute();
         }
         catch (StatementException e) {
-            assertTrue(e.getMessage()
-                        .contains("arguments:{ positional:{7:8}, named:{name:brian}, finder:[{one=two},{lazy bean proprty arguments \"java.lang.Object"));
+            assertThat(e.getMessage()).contains(
+                    "arguments:{ positional:{7:8}, named:{name:brian}, finder:[{one=two},{lazy bean proprty arguments " +
+                            "\"java.lang.Object");
         }
     }
 
@@ -391,7 +376,7 @@ public class TestQueries
                               .mapToBean(Something.class)
                               .list();
 
-        assertEquals(1, rs.size());
+        assertThat(rs).hasSize(1);
     }
 
     @Test

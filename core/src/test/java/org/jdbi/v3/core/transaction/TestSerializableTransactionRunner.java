@@ -15,14 +15,14 @@ package org.jdbi.v3.core.transaction;
 
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.H2DatabaseRule;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSerializableTransactionRunner
 {
@@ -51,9 +51,9 @@ public class TestSerializableTransactionRunner
             });
         } catch (SQLException e)
         {
-            Assert.assertEquals("40001", e.getSQLState());
+            assertThat(e.getSQLState()).isEqualTo("40001");
         }
-        Assert.assertEquals(0, tries.get());
+        assertThat(tries.get()).isEqualTo(0);
     }
 
     @Test
@@ -70,6 +70,6 @@ public class TestSerializableTransactionRunner
             throw new SQLException("serialization", "40001");
         });
 
-        Assert.assertEquals(0, tries.get());
+        assertThat(tries.get()).isZero();
     }
 }

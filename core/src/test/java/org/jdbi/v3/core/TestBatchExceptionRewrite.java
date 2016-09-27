@@ -13,9 +13,8 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.sql.SQLException;
 
@@ -43,7 +42,7 @@ public class TestBatchExceptionRewrite
         b.add("insert into something (id, name) values (0, 'Keith')");
         try {
             b.execute();
-            fail();
+            fail("Should throw an duplicate exception");
         } catch (UnableToExecuteStatementException e) {
             assertSuppressions(e.getCause());
         }
@@ -57,7 +56,7 @@ public class TestBatchExceptionRewrite
         b.add(0, "a");
         try {
             b.execute();
-            fail();
+            fail("Should throw a duplicate exception");
         } catch (UnableToExecuteStatementException e) {
             assertSuppressions(e.getCause());
         }
@@ -66,8 +65,9 @@ public class TestBatchExceptionRewrite
     private void assertSuppressions(Throwable cause) {
         LoggerFactory.getLogger(TestBatchExceptionRewrite.class).info("exception", cause);
         SQLException e = (SQLException) cause;
-        assertEquals(e.getNextException(), e.getSuppressed()[0]);
-        assertNull(e.getNextException().getNextException());
-        assertEquals(1, e.getSuppressed().length);
+        SQLException nextException = e.getNextException();
+        assertThat((Exception) nextException).isEqualTo(e.getSuppressed()[0]);
+        assertThat((Exception) nextException.getNextException()).isNull();
+        assertThat(e.getSuppressed()).hasSize(1);
     }
 }

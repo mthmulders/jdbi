@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import org.jdbi.v3.core.exception.StatementException;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class TestStatementExceptionContext
-{
+public class TestStatementExceptionContext {
     @Rule
     public H2DatabaseRule db = new H2DatabaseRule();
 
@@ -29,9 +29,9 @@ public class TestStatementExceptionContext
         Handle h = db.openHandle();
         try {
             h.insert("WOOF", 7, "Tom");
-        }
-        catch (StatementException e) {
-           assertEquals(e.getStatementContext().getRawSql(), "WOOF");
+            fail("Should throw a statement exception because of a bad SQL");
+        } catch (StatementException e) {
+            assertThat(e.getStatementContext().getRawSql()).isEqualTo("WOOF");
         }
     }
 }

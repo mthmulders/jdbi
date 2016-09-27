@@ -13,10 +13,8 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -40,7 +38,7 @@ public class TestIterator
 
     @After
     public void doTearDown() throws Exception {
-        assertTrue("Handle was not closed correctly!", h.isClosed());
+        assertThat(h.isClosed()).isTrue().withFailMessage("Handle was not closed correctly!");
     }
 
     @Test
@@ -53,13 +51,13 @@ public class TestIterator
             .cleanupHandle()
             .iterator();
 
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();
         it.next();
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();
         it.next();
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();
         it.next();
-        assertFalse(it.hasNext());
+        assertThat(it.hasNext()).isFalse();
     }
 
     @Test
@@ -68,7 +66,7 @@ public class TestIterator
             .cleanupHandle()
             .iterator();
 
-        assertFalse(it.hasNext());
+        assertThat(it.hasNext()).isFalse();
     }
 
     @Test
@@ -81,21 +79,21 @@ public class TestIterator
             .cleanupHandle()
             .iterator();
 
-        assertTrue(it.hasNext());
-        assertTrue(it.hasNext());
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();
+        assertThat(it.hasNext()).isTrue();
+        assertThat(it.hasNext()).isTrue();
         it.next();
-        assertTrue(it.hasNext());
-        assertTrue(it.hasNext());
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();
+        assertThat(it.hasNext()).isTrue();
+        assertThat(it.hasNext()).isTrue();
         it.next();
-        assertTrue(it.hasNext());
-        assertTrue(it.hasNext());
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();
+        assertThat(it.hasNext()).isTrue();
+        assertThat(it.hasNext()).isTrue();
         it.next();
-        assertFalse(it.hasNext());
-        assertFalse(it.hasNext());
-        assertFalse(it.hasNext());
+        assertThat(it.hasNext()).isFalse();
+        assertThat(it.hasNext()).isFalse();
+        assertThat(it.hasNext()).isFalse();
     }
 
     @Test
@@ -108,11 +106,11 @@ public class TestIterator
             .cleanupHandle()
             .iterator();
 
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();
         it.next();
         it.next();
         it.next();
-        assertFalse(it.hasNext());
+        assertThat(it.hasNext()).isFalse();
     }
 
     @Test
@@ -142,11 +140,11 @@ public class TestIterator
 
         it.next();
         it.next();
-        assertTrue(it.hasNext());
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();
+        assertThat(it.hasNext()).isTrue();
         it.next();
-        assertFalse(it.hasNext());
-        assertFalse(it.hasNext());
+        assertThat(it.hasNext()).isFalse();
+        assertThat(it.hasNext()).isFalse();
     }
 
     @Test
@@ -159,12 +157,12 @@ public class TestIterator
             .cleanupHandle()
             .iterator();
 
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();
         it.next();
         it.next();
-        assertTrue(it.hasNext());
+        assertThat(it.hasNext()).isTrue();
         it.next();
-        assertFalse(it.hasNext());
+        assertThat(it.hasNext()).isFalse();
     }
 
     @Test
@@ -178,13 +176,13 @@ public class TestIterator
             .iterator();
 
         try {
-            assertTrue(it.hasNext());
+            assertThat(it.hasNext()).isTrue();
             it.next();
-            assertTrue(it.hasNext());
+            assertThat(it.hasNext()).isTrue();
             it.next();
-            assertTrue(it.hasNext());
+            assertThat(it.hasNext()).isTrue();
             it.next();
-            assertFalse(it.hasNext());
+            assertThat(it.hasNext()).isFalse();
         }
         catch (Throwable t) {
             fail("unexpected throwable:" + t.getMessage());
@@ -226,8 +224,8 @@ public class TestIterator
             .iterator()
             .next();
 
-        assertEquals(1L, result.get("id"));
-        assertEquals("eric", result.get("name"));
+        assertThat(result.get("id")).isEqualTo(1L);
+        assertThat(result.get("name")).isEqualTo("eric");
     }
 
     @Test
@@ -242,10 +240,10 @@ public class TestIterator
             .iterator()
             .next();
 
-        assertEquals(1L, result.get("id"));
-        assertEquals("eric", result.get("name"));
+        assertThat(result.get("id")).isEqualTo(1L);
+        assertThat(result.get("name")).isEqualTo("eric");
 
-        assertFalse(h.isClosed());
+        assertThat(h.isClosed()).isFalse();
 
         // The Query created by createQuery() above just leaked a Statement and a ResultSet. It is necessary
         // to explicitly close the iterator in that case. However, as this test case is using the CachingStatementBuilder,
@@ -266,10 +264,10 @@ public class TestIterator
                 .iterator()) {
             final Map<String, Object> result =  it.next();
 
-            assertEquals(1L, result.get("id"));
-            assertEquals("eric", result.get("name"));
+            assertThat(result.get("id")).isEqualTo(1L);
+            assertThat(result.get("name")).isEqualTo("eric");
 
-            assertFalse(h.isClosed());
+            assertThat(h.isClosed()).isFalse();
         }
     }
 }

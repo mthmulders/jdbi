@@ -13,9 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.List;
 import java.util.UUID;
@@ -83,7 +82,7 @@ public class TestReentrancy
                 List<String> rs = conn.createQuery("select name from something where id = 1")
                         .mapTo(String.class)
                         .list();
-                assertThat(rs.size(), equalTo(1));
+                assertThat(rs).hasSize(1);
 
                 conn.createQuery("SELECT 1").list();
             });

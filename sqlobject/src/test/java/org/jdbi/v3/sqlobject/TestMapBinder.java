@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -59,8 +59,8 @@ public class TestMapBinder
         s.insert(allMap(5, "woo", 3, "too"));
 
         Result elem = s.load(5);
-        assertEquals("too", elem.c);
-        assertEquals(3, elem.b);
+        assertThat(elem.c).isEqualTo("too");
+        assertThat(elem.b).isEqualTo(3);
     }
 
     @Test
@@ -74,12 +74,12 @@ public class TestMapBinder
         update.put("b", 2);
         update.put("c", null);
 
-        assertEquals(1, s.update(4, update));
+        assertThat(s.update(4, update)).isEqualTo(1);
 
         Result elem = s.load(4);
-        assertEquals("goo", elem.a);
-        assertEquals(2, elem.b);
-        assertEquals("too", elem.c);
+        assertThat(elem.a).isEqualTo("goo");
+        assertThat(elem.b).isEqualTo(2);
+        assertThat(elem.c).isEqualTo("too");
     }
 
     @Test
@@ -92,12 +92,12 @@ public class TestMapBinder
         update.put("b", 2);
         update.put(new A(), "goo");
 
-        assertEquals(1, s.updatePrefix(4, update));
+        assertThat(s.updatePrefix(4, update)).isEqualTo(1);
 
         Result elem = s.load(4);
-        assertEquals("goo", elem.a);
-        assertEquals(1, elem.b); // filtered out by annotation value
-        assertEquals("too", elem.c);
+        assertThat(elem.a).isEqualTo("goo");
+        assertThat(elem.b).isEqualTo(1); // filtered out by annotation value
+        assertThat(elem.c).isEqualTo("too");
     }
 
     private Map<String, Object> allMap(int id, Object a, int b, Object c)

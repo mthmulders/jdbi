@@ -13,11 +13,11 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -63,7 +63,7 @@ public class TestSqlObject
         dao.insert(3, "Cora");
 
         Something c = dao.findByIdHeeHee(3);
-        assertThat(c, equalTo(new Something(3, "Cora")));
+        assertThat(c).isEqualTo(new Something(3, "Cora"));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class TestSqlObject
         dao.insert(3, "Cora");
 
         Something c = dao.findByIdHeeHee(3);
-        assertThat(c, equalTo(new Something(3, "Cora")));
+        assertThat(c).isEqualTo(new Something(3, "Cora"));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -112,7 +112,7 @@ public class TestSqlObject
     public void testTransactionAnnotationWorksOnInterfaceDefaultMethod() throws Exception
     {
         Dao dao = db.getSharedHandle().attach(Dao.class);
-        assertTrue(dao.doesTransactionAnnotationWork());
+        assertThat(dao.doesTransactionAnnotationWork()).isTrue();
     }
 
     @Test
@@ -155,11 +155,11 @@ public class TestSqlObject
 
         dao.insert(1, "foo");
         verify(handle, never()).begin();
-        assertThat(dao.findById(1), equalTo(new Something(1, "foo")));
+        assertThat(dao.findById(1)).isEqualTo(new Something(1, "foo"));
 
         dao.insertTransactional(2, "bar");
         verify(handle, times(1)).begin();
-        assertThat(dao.findById(2), equalTo(new Something(2, "bar")));
+        assertThat(dao.findById(2)).isEqualTo(new Something(2, "bar"));
     }
 
     @RegisterRowMapper(SomethingMapper.class)
@@ -186,7 +186,7 @@ public class TestSqlObject
 
         @Transaction
         default void twoNestedTransactions() {
-            assertTrue(doesTransactionAnnotationWork());
+            assertThat(doesTransactionAnnotationWork()).isTrue();
         }
 
         @Transaction
@@ -201,7 +201,7 @@ public class TestSqlObject
 
         @Transaction(READ_UNCOMMITTED)
         default void nestedTransactionWithSameIsolation() {
-            assertTrue(transactionWithIsolation());
+            assertThat(transactionWithIsolation()).isTrue();
         }
 
         @Transaction(READ_COMMITTED)

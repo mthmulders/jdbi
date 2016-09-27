@@ -13,9 +13,8 @@
  */
 package org.jdbi.v3.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import org.jdbi.v3.core.exception.UnableToExecuteStatementException;
 import org.junit.Before;
@@ -46,7 +45,7 @@ public class TestPositionalParameterBinding
                 .mapToBean(Something.class)
                 .list()
                 .get(0);
-        assertEquals(1, eric.getId());
+        assertThat(eric.getId()).isEqualTo(1);
     }
 
     @Test
@@ -59,7 +58,7 @@ public class TestPositionalParameterBinding
                 .bind(0, 1)
                 .mapToBean(Something.class)
                 .list().get(0);
-        assertEquals(1, eric.getId());
+        assertThat(eric.getId()).isEqualTo(1);
     }
 
     @Test
@@ -76,7 +75,7 @@ public class TestPositionalParameterBinding
         }
         catch (UnableToExecuteStatementException e)
         {
-            assertTrue("Execution goes through here", true);
+            assertThat(true).isTrue();
         }
         catch (Exception e)
         {
@@ -99,7 +98,7 @@ public class TestPositionalParameterBinding
         }
         catch (UnableToExecuteStatementException e)
         {
-            assertTrue("Execution goes through here", true);
+            assertThat(true).isTrue();
         }
         catch (Exception e)
         {
@@ -114,7 +113,7 @@ public class TestPositionalParameterBinding
                 .bind(0, 1)
                 .execute();
 
-        assertEquals(1, count);
+        assertThat(count).isEqualTo(1);
     }
 
     @Test
@@ -122,6 +121,6 @@ public class TestPositionalParameterBinding
     {
         int count = h.insert("insert into something (id, name) values (?, ?)", 1, "eric");
 
-        assertEquals(1, count);
+        assertThat(count).isEqualTo(1);
     }
 }

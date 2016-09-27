@@ -13,9 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
@@ -84,7 +83,7 @@ public class TestOnDemandSqlObject
 
         String bill = dbi.open().createQuery("select name from something where id = 7").mapTo(String.class).findOnly();
 
-        assertEquals("Bill", bill);
+        assertThat(bill).isEqualTo("Bill");
     }
 
     @Test(expected=TransactionException.class)
@@ -109,11 +108,12 @@ public class TestOnDemandSqlObject
         Spiffy s = dbi.onDemand(Spiffy.class);
         try {
             s.crashNow();
-            fail();
+            fail("Should throw a JDBIException");
         } catch (JdbiException e) {
+            assertThat(e).isNotNull();
         }
 
-        assertFalse( tracker.hasOpenedHandle() );
+        assertThat(tracker.hasOpenedHandle()).isFalse();
     }
 
     @Test
@@ -124,11 +124,12 @@ public class TestOnDemandSqlObject
         Iterator<Something> i = spiffy.crashOnFirstRead();
         try {
             i.next();
-            fail();
+            fail("Should throw a JDBIException");
         } catch (JdbiException ex) {
+            assertThat(ex).isNotNull();
         }
 
-        assertFalse(tracker.hasOpenedHandle());
+        assertThat(tracker.hasOpenedHandle()).isFalse();
     }
 
     @Test
@@ -137,7 +138,7 @@ public class TestOnDemandSqlObject
 
         spiffy.findAll();
 
-        assertFalse(tracker.hasOpenedHandle());
+        assertThat(tracker.hasOpenedHandle()).isFalse();
     }
 
     @Test
@@ -147,7 +148,7 @@ public class TestOnDemandSqlObject
 
         try (ResultIterator<Something> all = spiffy.findAll()) {}
 
-        assertFalse( tracker.hasOpenedHandle() );
+        assertThat(tracker.hasOpenedHandle()).isFalse();
     }
 
     @Test
@@ -160,8 +161,7 @@ public class TestOnDemandSqlObject
         spiffy.insert(2, "Sam");
 
         List<Something> all = external.findAll();
-
-        assertEquals(2, all.size());
+        assertThat(all).hasSize(2);
     }
 
     public interface Spiffy extends GetHandle

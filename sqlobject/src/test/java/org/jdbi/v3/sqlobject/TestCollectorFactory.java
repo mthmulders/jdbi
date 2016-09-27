@@ -13,14 +13,13 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.SortedSet;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSortedSet;
 
 import org.jdbi.v3.core.H2DatabaseRule;
 import org.jdbi.v3.core.Handle;
@@ -45,8 +44,7 @@ public class TestCollectorFactory {
                 .mapTo(String.class)
                 .collect(GuavaCollectors.toOptional());
 
-        assertThat(rs.isPresent(), equalTo(true));
-        assertThat(rs.get(), equalTo("Coda"));
+        assertThat(rs).isEqualTo(Optional.of("Coda"));
     }
 
     @Test
@@ -59,7 +57,7 @@ public class TestCollectorFactory {
                 .mapTo(String.class)
                 .collect(GuavaCollectors.toOptional());
 
-        assertThat(rs.isPresent(), equalTo(false));
+        assertThat(rs.isPresent()).isFalse();
     }
 
     @Test
@@ -73,7 +71,7 @@ public class TestCollectorFactory {
                 .mapTo(String.class)
                 .collect(GuavaCollectors.toImmutableList());
 
-        assertThat(rs, equalTo(ImmutableList.of("Coda", "Brian")));
+        assertThat(rs).containsExactly("Coda", "Brian");
     }
 
     @Test
@@ -83,7 +81,7 @@ public class TestCollectorFactory {
         dao.insert(new Something(2, "Brian"));
 
         ImmutableList<String> rs = dao.findAll();
-        assertThat(rs, equalTo(ImmutableList.of("Coda", "Brian")));
+        assertThat(rs).containsExactly("Coda", "Brian");
     }
 
     @Test
@@ -93,13 +91,13 @@ public class TestCollectorFactory {
         dao.insert(new Something(2, "Brian"));
 
         Optional<String> rs = dao.findNameById(1);
-        assertThat(rs, equalTo(Optional.of("Coda")));
+        assertThat(rs).isEqualTo(Optional.of("Coda"));
 
         rs = dao.smartFindNameById(1);
-        assertThat(rs, equalTo(Optional.of("Coda")));
+        assertThat(rs).isEqualTo(Optional.of("Coda"));
 
         rs = dao.inheritedGenericFindNameById(1);
-        assertThat(rs, equalTo(Optional.of("Coda")));
+        assertThat(rs).isEqualTo(Optional.of("Coda"));
     }
 
     @Test
@@ -109,7 +107,7 @@ public class TestCollectorFactory {
         dao.insert(new Something(2, "Brian"));
 
         SortedSet<String> rs = dao.findAllAsSet();
-        assertThat(rs, equalTo(ImmutableSortedSet.of("Brian", "Coda")));
+        assertThat(rs).containsExactly("Brian", "Coda");
     }
 
     @RegisterCollectorFactory(GuavaCollectors.Factory.class)

@@ -13,11 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -50,7 +47,7 @@ public class TestRegisteredMappersWork
     public void testFoo() throws Exception
     {
         boolean world_is_right = db.getSharedHandle().attach(BooleanDao.class).fetchABoolean();
-        assertThat(world_is_right, equalTo(true));
+        assertThat(world_is_right).isTrue();
     }
 
     public static class Bean
@@ -105,8 +102,8 @@ public class TestRegisteredMappersWork
         bdb.insertBean(lima);
 
         Bean another_lima = bdb.findByName("lima");
-        assertThat(another_lima.getName(), equalTo(lima.getName()));
-        assertThat(another_lima.getColor(), equalTo(lima.getColor()));
+        assertThat(another_lima.getName()).isEqualTo(lima.getName());
+        assertThat(another_lima.getColor()).isEqualTo(lima.getColor());
     }
 
     @Test
@@ -119,8 +116,7 @@ public class TestRegisteredMappersWork
         s.insert(1, "Tatu");
 
         Something t = s.byId(1);
-        assertEquals(1, t.getId());
-        assertEquals("Tatu", t.getName());
+        assertThat(t).isEqualTo(new Something(1, "Tatu"));
     }
 
     @Test
@@ -130,7 +126,7 @@ public class TestRegisteredMappersWork
 
         s.insert(1, "Tatu");
 
-        assertEquals("Tatu", s.findNameBy(1));
+        assertThat(s.findNameBy(1)).isEqualTo("Tatu");
     }
 
     @Test
@@ -141,7 +137,7 @@ public class TestRegisteredMappersWork
         bob.insert(1, "Henning");
         Something henning = bob.find(1);
 
-        assertThat(henning, equalTo(new Something(1, "Henning")));
+        assertThat(henning).isEqualTo(new Something(1, "Henning"));
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -162,13 +158,13 @@ public class TestRegisteredMappersWork
         Kabob bob = db.getJdbi().onDemand(Kabob.class);
 
         Something henning = bob.find(1);
-        assertThat(henning, nullValue());
+        assertThat(henning).isNull();
 
         List<Something> rs = bob.listAll();
-        assertThat(rs.isEmpty(), equalTo(true));
+        assertThat(rs).isEmpty();
 
         Iterator<Something> itty = bob.iterateAll();
-        assertThat(itty.hasNext(), equalTo(false));
+        assertThat(itty.hasNext()).isFalse();
     }
 
     public interface Spiffy

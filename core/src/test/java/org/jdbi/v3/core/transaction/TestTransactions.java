@@ -13,10 +13,8 @@
  */
 package org.jdbi.v3.core.transaction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,7 +40,7 @@ public class TestTransactions
 
         String woot = h.inTransaction((handle, status) -> "Woot!");
 
-        assertEquals("Woot!", woot);
+        assertThat(woot).isEqualTo("Woot!");
     }
 
     @Test
@@ -58,13 +56,13 @@ public class TestTransactions
     public void testDoubleOpen() throws Exception
     {
         Handle h = db.openHandle();
-        assertTrue(h.getConnection().getAutoCommit());
+        assertThat(h.getConnection().getAutoCommit()).isTrue();
 
         h.begin();
         h.begin();
-        assertFalse(h.getConnection().getAutoCommit());
+        assertThat(h.getConnection().getAutoCommit()).isFalse();
         h.commit();
-        assertTrue(h.getConnection().getAutoCommit());
+        assertThat(h.getConnection().getAutoCommit()).isTrue();
     }
 
     @Test
@@ -85,7 +83,7 @@ public class TestTransactions
         }
 
         List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
-        assertEquals(0, r.size());
+        assertThat(r).isEmpty();
     }
 
     @Test
@@ -104,10 +102,11 @@ public class TestTransactions
         }
         catch (TransactionFailedException expected)
         {
+            assertThat(expected).isNotNull();
         }
 
         List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
-        assertEquals(0, r.size());
+        assertThat(r).isEmpty();
     }
 
     @Test
@@ -119,11 +118,14 @@ public class TestTransactions
         h.insert("insert into something (id, name) values (:id, :name)", 1, "Tom");
         h.checkpoint("first");
         h.insert("insert into something (id, name) values (:id, :name)", 2, "Martin");
-        assertEquals(Integer.valueOf(2), h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly());
+        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
+                .isEqualTo(Integer.valueOf(2));
         h.rollback("first");
-        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly());
+        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
+                .isEqualTo(Integer.valueOf(1));
         h.commit();
-        assertEquals(Integer.valueOf(1), h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly());
+        assertThat(h.createQuery("select count(*) from something").mapTo(Integer.class).findOnly())
+                .isEqualTo(Integer.valueOf(1));
     }
 
     @Test
@@ -141,8 +143,8 @@ public class TestTransactions
             fail("Should have thrown an exception of some kind");
         }
         catch (TransactionException e) {
+            assertThat(e).isNotNull();
             h.rollback();
-            assertTrue(true);
         }
     }
 
@@ -160,7 +162,7 @@ public class TestTransactions
         }
         catch (IllegalArgumentException e)
         {
-            assertEquals("Go here", 2, 1 + 1);
+            assertThat(e).isNotNull();
         }
         catch (Exception e) {
             fail("Should have been caught at IllegalArgumentException");
