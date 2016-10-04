@@ -59,6 +59,12 @@ public class TestOptional {
         assertThat(dao.findNameById(3)).isEmpty();
     }
 
+    @Test
+    public void testNullReturnsAbsent() {
+        dao.insert(3, null);
+        assertThat(dao.findNameById(3)).isEmpty();
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testOptionalReturnMultiple() {
         dao.findMultiple();
